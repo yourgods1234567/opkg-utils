@@ -1,0 +1,3 @@
+desc=Helper scripts for use with the opkg package manager
+section=-Yocto Tools
+hide=0
