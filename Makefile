@@ -27,9 +27,11 @@ mandir ?= $(PREFIX)/man
 
 all: $(UTILS) $(MANPAGES)
 
-install: all
+install-utils: $(UTILS)
 	install -d $(DESTDIR)$(bindir)
 	install -m 755 $(UTILS) $(DESTDIR)$(bindir)
+
+install-docs: $(MANPAGES)
 	install -d $(DESTDIR)$(mandir)
 	for m in $(MANPAGES); \
 	do \
@@ -37,4 +39,6 @@ install: all
 		install -m 644 "$$m" $(DESTDIR)$(mandir)/man$${m##*.}; \
 	done
 
-.PHONY: install all
+install: install-utils install-docs
+
+.PHONY: install install-utils install-docs all
