@@ -263,6 +263,8 @@ case $# in
 	dest_dir=$2
 	if [ "$dest_dir" = "." -o "$dest_dir" = "./" ] ; then
 	    dest_dir=$PWD
+	else
+		mkdir -p "$dest_dir"
 	fi
 	;;
 *)
