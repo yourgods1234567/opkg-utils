@@ -183,6 +183,9 @@ compressor_ext() {
 	lz4)
 	    echo lz4
 	    ;;
+	zstd)
+	    echo zst
+	    ;;
 
 	*)
 	    echo "*** Error: unsupported compression scheme: $1" >&2
@@ -198,7 +201,7 @@ B<opkg-build> [B<-c>] [B<-C>] [B<-Z> I<compressor>] [B<-a>] [B<-O>] [B<-o> I<own
 
 =cut
 
-usage="Usage: $0 [-c] [-C] [-Z compressor] [-a] [-O] [-o owner] [-g group] <pkg_directory> [<destination_directory>]"
+usage="Usage: $0 [-c] [-C] [-Z compressor] [-a compressor_args] [-O] [-o owner] [-g group] <pkg_directory> [<destination_directory>]"
 while getopts "a:cCg:ho:vOZ:" opt; do
     case $opt in
 	o ) owner=$OPTARG
@@ -364,7 +367,7 @@ Stop with an error if any files ending with B<~> are found. The default behaviou
 
 =item B<-Z> I<compressor>
 
-Specify which compression type to use when building a package. Allowed values are B<gzip>, B<pigz>, B<bzip2>, B<lz4> and B<xz> (default is B<gzip>).
+Specify which compression type to use when building a package. Allowed values are B<gzip>, B<pigz>, B<bzip2>, B<lz4>, B<xz> and B<zstd> (default is B<gzip>).
 
 =item B<-a> I<compressor-args>
 
