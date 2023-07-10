@@ -145,6 +145,7 @@ You probably want to chown these to a system user: " >&2
 ###
 # opkg-build "main"
 ###
+attributesargs=""
 ogargs=""
 outer=ar
 noclean=0
@@ -166,7 +167,7 @@ compressorargs=""
 tarformat=""
 if tar --help 2>&1 | grep -- "--format" > /dev/null;
 then
-    tarformat="--format=gnu"
+    tarformat="--format=posix"
 fi
 
 compressor_ext() {
@@ -197,13 +198,17 @@ compressor_ext() {
 : <<=cut
 =head1 SYNOPSIS
 
-B<opkg-build> [B<-c>] [B<-C>] [B<-Z> I<compressor>] [B<-a>] [B<-O>] [B<-o> I<owner>] [B<-g> I<group>] I<pkg_directory> [I<destination_directory>]
+B<opkg-build> [B<-A>] [B<-X>] [B<-c>] [B<-C>] [B<-Z> I<compressor>] [B<-a>] [B<-O>] [B<-o> I<owner>] [B<-g> I<group>] I<pkg_directory> [I<destination_directory>]
 
 =cut
 
-usage="Usage: $0 [-c] [-C] [-Z compressor] [-a compressor_args] [-O] [-o owner] [-g group] <pkg_directory> [<destination_directory>]"
-while getopts "a:cCg:ho:vOZ:" opt; do
+usage="Usage: $0 [-A] [-X] [-c] [-C] [-Z compressor] [-a compressor_args] [-O] [-o owner] [-g group] <pkg_directory> [<destination_directory>]"
+while getopts "Aa:cCg:ho:vOXZ:" opt; do
     case $opt in
+        A ) attributesargs="--acls"
+            ;;
+        X ) attributesargs="$attributesargs --xattrs"
+            ;;
 	o ) owner=$OPTARG
 	    ogargs="--owner=$owner"
 	    ;;
@@ -314,7 +319,7 @@ export LANG=C
 export LC_ALL=C
 ( cd $pkg_dir/$CONTROL && find . -type f | sort > $tmp_dir/control_list )
 ( cd $pkg_dir && find . -path ./$CONTROL -prune -o -path . -o -print  | sort > $tmp_dir/file_list )
-( cd $pkg_dir && tar $ogargs $tsortargs --no-recursion $mtime_args -c $tarformat -T $tmp_dir/file_list | $compressor $compressorargs > $tmp_dir/data.tar.$cext )
+( cd $pkg_dir && tar $attributesargs $ogargs $tsortargs --no-recursion $mtime_args -c $tarformat -T $tmp_dir/file_list | $compressor $compressorargs > $tmp_dir/data.tar.$cext )
 ( cd $pkg_dir/$CONTROL && tar $ogargs $tsortargs --no-recursion --mtime=@$build_date -c $tarformat -T $tmp_dir/control_list | gzip $zipargs > $tmp_dir/control.tar.gz )
 rm $tmp_dir/file_list
 rm $tmp_dir/control_list
