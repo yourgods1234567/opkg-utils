@@ -54,19 +54,19 @@ pkg_appears_sane() {
 
 	tilde_files=`find . -name '*~' -ls -printf '\\\n'`
 	if [ -n "$tilde_files" ]; then
-	    if [ "$noclean" = "1" ]; then
-		echo "*** Warning: The following files have names ending in '~'.
+		if [ "$noclean" = "1" ]; then
+			echo "*** Warning: The following files have names ending in '~'.
 You probably want to remove them: " >&2
-		echo -e $tilde_files
-		if [ $? -ne 0 ]; then
-			echo "*** Error: Fail to list files have names ending in '~'."
-			exit 1
+			echo -e $tilde_files
+			if [ $? -ne 0 ]; then
+				echo "*** Error: Fail to list files have names ending in '~'."
+				exit 1
+			fi
+			echo >&2
+		else
+			echo "*** Removing the following files: $tilde_files"
+			rm -f "$tilde_files"
 		fi
-		echo >&2
-	    else
-		echo "*** Removing the following files: $tilde_files"
-		rm -f "$tilde_files"
-	    fi
 	fi
 
 	large_uid_files=`find . -uid +99 -ls -printf '\\\n' || true`
@@ -155,28 +155,27 @@ zipargs="-9n"
 compressorargs=""
 
 compressor_ext() {
-    case $1 in
-	gzip|pigz)
-	    echo gz
-	    ;;
-	bzip2)
-	    echo bz2
-	    ;;
-	xz)
-	    echo xz
-	    ;;
-	lz4)
-	    echo lz4
-	    ;;
-	zstd)
-	    echo zst
-	    ;;
-
-	*)
-	    echo "*** Error: unsupported compression scheme: $1" >&2
-	    exit 1
-	    ;;
-    esac
+	case $1 in
+		gzip|pigz)
+			echo gz
+			;;
+		bzip2)
+			echo bz2
+			;;
+		xz)
+			echo xz
+			;;
+		lz4)
+			echo lz4
+			;;
+		zstd)
+			echo zst
+			;;
+		*)
+			echo "*** Error: unsupported compression scheme: $1" >&2
+			exit 1
+			;;
+	esac
 }
 
 : <<=cut
@@ -188,37 +187,37 @@ B<opkg-build> [B<-A>] [B<-X>] [B<-c>] [B<-C>] [B<-Z> I<compressor>] [B<-a>] [B<-
 
 usage="Usage: $0 [-A] [-X] [-c] [-C] [-Z compressor] [-a compressor_args] [-O] [-o owner] [-g group] <pkg_directory> [<destination_directory>]"
 while getopts "Aa:cCg:ho:vOXZ:" opt; do
-    case $opt in
-	A ) attributesargs="${attributesargs:+$attributesargs }--acls"
-	    ;;
-	X ) attributesargs="${attributesargs:+$attributesargs }--xattrs"
-	    ;;
-	o ) owner=$OPTARG
-	    ogargs="${ogargs:+$ogargs }--owner=$owner"
-	    ;;
-	O ) opkext=1
-	    ;;
-	g ) group=$OPTARG
-	    ogargs="${ogargs:+$ogargs }--group=$group"
-	    ;;
-	c ) outer=tar
-	    ;;
-	C ) noclean=1
-	    ;;
-	Z ) compressor=$OPTARG
-	    ;;
-	a ) compressorargs=$OPTARG
-	    ;;
-	v ) echo $version
-	    exit 0
-	    ;;
-	h )
-	    echo $usage  >&2
-	    exit 0
-	    ;;
-	\? )
-	    echo $usage  >&2
-    esac
+	case $opt in
+		A ) attributesargs="${attributesargs:+$attributesargs }--acls"
+			;;
+		X ) attributesargs="${attributesargs:+$attributesargs }--xattrs"
+			;;
+		o ) owner=$OPTARG
+			ogargs="${ogargs:+$ogargs }--owner=$owner"
+			;;
+		O ) opkext=1
+			;;
+		g ) group=$OPTARG
+			ogargs="${ogargs:+$ogargs }--group=$group"
+			;;
+		c ) outer=tar
+			;;
+		C ) noclean=1
+			;;
+		Z ) compressor=$OPTARG
+			;;
+		a ) compressorargs=$OPTARG
+			;;
+		v ) echo $version
+			exit 0
+			;;
+		h )
+			echo $usage  >&2
+			exit 0
+			;;
+		\? )
+			echo $usage  >&2
+	esac
 done
 
 # Determine if tar supports the --format argument by checking the help output.
@@ -233,15 +232,14 @@ done
 # It's easier to check for mention of the '--format' option than to detect the
 # tar implementation and maintain a list of which support '--format'.
 tarformat=""
-if tar --help 2>&1 | grep -- "--format" > /dev/null;
-then
-    # For ACLs or xattr support, gnu format will not work
-    # we need to set posix format instead
-    if [ ! -z "$attributesargs" ] ; then
-	    tarformat="--format=posix"
-    else
-	    tarformat="--format=gnu"
-    fi
+if tar --help 2>&1 | grep -- "--format" > /dev/null; then
+	# For ACLs or xattr support, gnu format will not work
+	# we need to set posix format instead
+	if [ ! -z "$attributesargs" ] ; then
+		tarformat="--format=posix"
+	else
+		tarformat="--format=gnu"
+	fi
 elif [ ! -z "$attributesargs" ] ; then
 	echo "*** Error: Attributes: $attributesargs, don't work, without posix format, which is not supported by host's tar command." >&2
 	exit 1
@@ -274,21 +272,21 @@ shift $(($OPTIND - 1))
 # continue on to process additional arguments
 
 case $# in
-1)
-	dest_dir=$PWD
-	;;
-2)
-	dest_dir=$2
-	if [ "$dest_dir" = "." -o "$dest_dir" = "./" ] ; then
-	    dest_dir=$PWD
-	else
-		mkdir -p "$dest_dir"
-	fi
-	;;
-*)
-	echo $usage >&2
-	exit 1 
-	;;
+	1)
+		dest_dir=$PWD
+		;;
+	2)
+		dest_dir=$2
+		if [ "$dest_dir" = "." -o "$dest_dir" = "./" ] ; then
+			dest_dir=$PWD
+		else
+			mkdir -p "$dest_dir"
+		fi
+		;;
+	*)
+		echo $usage >&2
+		exit 1
+		;;
 esac
 
 pkg_dir=$1
@@ -320,7 +318,7 @@ mtime_args="--mtime=@${SOURCE_DATE_EPOCH:-$(date +%s)}"
 # --clamp-mtime requires tar > 1.28. Only use it if SOURCE_DATE_EPOCH is set, to avoid having a generic case dependency on tar > 1.28.
 # this setting will make sure files generated at build time have consistent mtimes, for reproducible builds.
 if [ ! -z "$SOURCE_DATE_EPOCH"  ]; then
-    mtime_args="$mtime_args --clamp-mtime"
+	mtime_args="$mtime_args --clamp-mtime"
 fi
 
 # Notice, that if you create an archive in POSIX format (see section GNU tar and POSIX tar) and the environment variable POSIXLY_CORRECT is set,
@@ -332,7 +330,7 @@ fi
 #
 # https://www.gnu.org/software/tar/manual/html_node/PAX-keywords.html
 if [[ "$tarformat" == "--format=posix" ]]; then
-    mtime_args="$mtime_args --pax-option=exthdr.name=%d/PaxHeaders/%f,atime:=0,ctime:=0"
+	mtime_args="$mtime_args --pax-option=exthdr.name=%d/PaxHeaders/%f,atime:=0,ctime:=0"
 fi
 
 export LANG=C
@@ -354,9 +352,9 @@ fi
 
 rm -f $pkg_file
 if [ "$outer" = "ar" ] ; then
-  ( cd $tmp_dir && ar -crfD $pkg_file ./debian-binary ./control.tar.gz ./data.tar.$cext )
+	( cd $tmp_dir && ar -crfD $pkg_file ./debian-binary ./control.tar.gz ./data.tar.$cext )
 else
-  ( cd $tmp_dir && tar -c $tsortargs $mtime_args $tarformat ./debian-binary ./control.tar.gz ./data.tar.$cext | gzip $zipargs > $pkg_file )
+	( cd $tmp_dir && tar -c $tsortargs $mtime_args $tarformat ./debian-binary ./control.tar.gz ./data.tar.$cext | gzip $zipargs > $pkg_file )
 fi
 
 rm $tmp_dir/debian-binary $tmp_dir/data.tar.$cext $tmp_dir/control.tar.gz
