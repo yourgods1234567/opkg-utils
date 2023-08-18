@@ -35,12 +35,12 @@ Each patch should make a single logical change. If multiple files are changed to
 
 ## Submitting patches for review
 
-Opkg-utils is primarily used by the OpenEmbedded build system but may also be used by other embedded Linux projects. For now, please submit all patches to both the Yocto Project mailing list (yocto@lists.yoctoproject.org) and the opkg mailing list (opkg-devel@googlegroups.com), adding a subject prefix of "opkg-utils PATCH" (this prefix is necessary as the Yocto Project mailing list receives patches for many projects). Also make sure that you use the -M option on the command line or the "diff.renames=copy" option in your config.
+Opkg-utils is primarily used by the OpenEmbedded build system but may also be used by other embedded Linux projects. Please submit all patches to both the Yocto Project mailing list (yocto@lists.yoctoproject.org) and the opkg mailing list (opkg@lists.yoctoproject.org), adding a subject prefix of "opkg-utils PATCH" (this prefix is necessary as the Yocto Project mailing list receives patches for many projects). Also make sure that you use the -M option on the command line or the "diff.renames=copy" option in your config.
 
 That sounds like a lot to remember but if you run the following commands in your opkg-utils directory it will all be done automatically when you use `git format-patch` or `git send-email`:
 
 ```bash
-git config format.to "opkg-devel@googlegroups.com"
+git config format.to "opkg@lists.yoctoproject.org"
 git config --add format.to "yocto@lists.yoctoproject.org"
 git config format.subjectprefix "opkg-utils PATCH"
 git config diff.renames copy
@@ -62,7 +62,7 @@ git send-email
 
 That should result in your patches being sent to the relevant mailing lists in the correct format. The patches should then be reviewed and you should receive feedback by email. If you haven't heard anything within 2 weeks, feel free to send us a reminder.
 
-If you need any further help or advice, just ask on the opkg-devel mailing list (opkg-devel@googlegroups.com).
+If you need any further help or advice, just ask on the opkg mailing list (opkg@lists.yoctoproject.org).
 
 
 ## Commit Access
